@@ -14,12 +14,13 @@ public enum ErrorCode {
      *
      */
     INVALID_INPUT_VALUE(BAD_REQUEST, 4000001, "invalid input value"),
+    INVALID_PASSWORD(BAD_REQUEST, 4000002, "invalid password"),
 
     NOT_FOUND_ACCESS_TOKEN(UNAUTHORIZED, 4010001, "access token not found in header field"),
     INVALID_JWT(UNAUTHORIZED, 4010002, "The token was signed incorrectly"),
     EXPIRED_ACCESS_TOKEN(UNAUTHORIZED, 4010003, "The access token was expired"),
 
-    NOT_EXIST_USER(CONFLICT, 4040001, "already exist user"),
+    NOT_EXIST_USER(NOT_FOUND, 4040001, "not exist user"),
     ALREADY_EXIST_USER(CONFLICT, 4090001, "already exist user"),
 
     /**

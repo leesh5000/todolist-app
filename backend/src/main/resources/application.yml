@@ -1,11 +1,11 @@
 spring:
   profiles:
     active: dev
+
 ---
+
 spring:
   profiles:
     group:
-      local:
       dev: dev, security
-      test: test
----
+      prod:

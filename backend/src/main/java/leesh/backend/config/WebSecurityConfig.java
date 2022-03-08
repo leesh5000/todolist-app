@@ -77,10 +77,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.png", "/**/*.gif", "/**/*.svg",
                         "/**/*.jpg", "/**/*.html", "/**/*.css", "/**/*.js", "/h2-console/**")
                 .permitAll()
-                .antMatchers("/api/users/register", "/api/users/login").permitAll()
+                .antMatchers("/api/users/register", "/api/users/login", "/api/users/logout").permitAll()
                 .anyRequest()
                 .authenticated();
 
-//        httpSecurity.addFilterBefore(new JwtFilter(objectMapper, jwtUtil), UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.addFilterBefore(new JwtFilter(objectMapper, jwtUtil), UsernamePasswordAuthenticationFilter.class);
     }
 }
