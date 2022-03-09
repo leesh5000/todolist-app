@@ -25,14 +25,15 @@ public class User extends BaseTimeEntity {
     @Column(name = "password")
     private String password;
 
-    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Post> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "comment", fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
 
     @Builder
-    public User(String username, String password) {
+    public User(Long id, String username, String password) {
+        this.id = id;
         this.username = username;
         this.password = password;
     }

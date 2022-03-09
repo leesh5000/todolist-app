@@ -42,8 +42,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
-
-        log.info("jwt filter start");
         Optional<String> optional = getAccessTokenFromCookie(request);
         if (optional.isPresent()) {
             try {
@@ -58,7 +56,7 @@ public class JwtFilter extends OncePerRequestFilter {
                         log.info("jwt refresh start");
                         log.info("iat = {}", jwt.get("iat"));
                         log.info("exp = {}", exp);
-                        UserDetails userDetails = jwtUtil.getUserDetails(accessToken);
+                        CustomUserDetails userDetails = jwtUtil.getUserDetails(accessToken);
                         accessToken = jwtUtil.createAccessToken(userDetails);
 
                         // set cookie
@@ -81,7 +79,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 log.info("SecurityContext saved '{}' uri: {}", userAuthentication.getName(), request.getRequestURI());
 
             } catch (CustomException e) {
-                log.error("Jwt validate failed", e);
                 ErrorResponse body = ErrorResponse.of(e.getErrorCode());
                 response.setStatus(e.getErrorCode().getStatus().value());
                 response.setContentType("application/json");

@@ -39,7 +39,7 @@ public class JwtUtil implements InitializingBean {
 
     }
 
-    public String createAccessToken(@NotNull UserDetails userDetails) {
+    public String createAccessToken(@NotNull CustomUserDetails userDetails) {
 
         Instant issuedAt = Instant.now();
         Instant expiredAt = issuedAt.plus(ACCESS_TOKEN_EXPIRED_MSEC, ChronoUnit.MILLIS);
@@ -59,7 +59,7 @@ public class JwtUtil implements InitializingBean {
                 .compact();
     }
 
-    public UserDetails getUserDetails(@NotNull String accessToken) {
+    public CustomUserDetails getUserDetails(@NotNull String accessToken) {
 
         Claims claims = getClaims(accessToken);
 

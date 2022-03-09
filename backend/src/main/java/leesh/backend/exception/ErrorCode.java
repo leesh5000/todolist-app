@@ -20,8 +20,10 @@ public enum ErrorCode {
     INVALID_JWT(UNAUTHORIZED, 4010002, "The token was signed incorrectly"),
     EXPIRED_ACCESS_TOKEN(UNAUTHORIZED, 4010003, "The access token was expired"),
 
-    NOT_EXIST_USER(NOT_FOUND, 4040001, "not exist user"),
+    NOT_FOUND_RESOURCE(NOT_FOUND, 4040001, "not found resource"),
     ALREADY_EXIST_USER(CONFLICT, 4090001, "already exist user"),
+
+    NO_PERMISSION(HttpStatus.FORBIDDEN, 4030001, "no permission"),
 
     /**
      *

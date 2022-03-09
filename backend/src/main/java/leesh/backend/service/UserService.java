@@ -33,11 +33,4 @@ public class UserService {
 
         return userRepository.save(user);
     }
-
-    public User login(UserLoginRequest requestDto) {
-
-        return userRepository.findByUsername(requestDto.getUsername())
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXIST_USER));
-    }
-
 }

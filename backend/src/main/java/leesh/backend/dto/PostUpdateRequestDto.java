@@ -4,17 +4,20 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @NoArgsConstructor
 @Getter
-public class PostWriteResponse {
+public class PostUpdateRequestDto {
 
     private String title;
     private String body;
+    private Set<String> tags;
 
     @Builder
-    public PostWriteResponse(String title, String body) {
+    public PostUpdateRequestDto(String title, String body, Set<String> tags) {
         this.title = title;
         this.body = body;
+        this.tags = tags;
     }
-
 }
