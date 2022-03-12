@@ -1,6 +1,7 @@
 package leesh.backend.entity;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
@@ -8,7 +9,6 @@ import org.springframework.util.StringUtils;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "post")
@@ -28,36 +28,59 @@ public class Post extends BaseTimeEntity {
     @Column(name = "body")
     private String body;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    private Set<String> tag;
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostTag> postTags = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private final List<Comment> comments = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id") // 실제 외래키의 주인
     private User user;
 
-    private Post(String title, String body, Set<String> tag, User user) {
+    @Builder
+    private Post(String title, String body) {
         this.title = title;
         this.body = body;
-        this.tag = tag;
+    }
+
+    //== 생성 매서드 ==//
+    public static Post createPost(String title, String body, User user) {
+        Post post = Post.builder()
+                .title(title)
+                .body(body)
+                .build();
+        post.setUser(user);
+        return post;
+    }
+
+    //== 연관관계 매서드 ==//
+    private void setUser(User user) {
+        if (this.user != null) {
+            this.user.getPosts().remove(this); // 기존에 존재하는 유저는 삭제
+        }
         this.user = user;
+        user.getPosts().add(this);
     }
 
-    public static Post write(String title, String body, Set<String> tag, User author) {
-        return new Post(title, body, tag, author);
+    public void addPostTag(PostTag postTag) {
+        this.postTags.add(postTag);
+        if (postTag.getPost() != this) {
+            postTag.setPost(this);
+        }
     }
 
-    public void edit(String title, String body, Set<String> tag) {
+    //== 비즈니스 로직 ==//
+    public void edit(String title, String body, List<PostTag> postTags) {
         if (StringUtils.hasText(title)) {
             this.title = title;
         }
         if (StringUtils.hasText(body)) {
             this.body = body;
         }
-        if (tag != null) { // 빈 값도 가능
-            this.tag = tag;
+        if (postTags != null) { // 빈 값도 가능
+            this.postTags.clear();
+            this.postTags.addAll(postTags);
         }
     }
 }

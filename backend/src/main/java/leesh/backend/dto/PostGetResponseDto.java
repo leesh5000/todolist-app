@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor
 @Getter
@@ -37,7 +39,9 @@ public class PostGetResponseDto {
                 .title(entity.getTitle())
                 .body(entity.getBody())
                 .author(entity.getUser().getUsername())
-                .tag(entity.getTag())
+                .tag(entity.getPostTags().stream()
+                        .map(postTag -> postTag.getTag().getTagName())
+                        .collect(Collectors.toSet()))
                 .publishedDate(entity.getCreatedDate())
                 .lastModifiedDate(entity.getModifiedDate())
                 .build();

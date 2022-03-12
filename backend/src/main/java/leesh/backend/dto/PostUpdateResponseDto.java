@@ -1,11 +1,13 @@
 package leesh.backend.dto;
 
+import leesh.backend.entity.Post;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor
 @Getter
@@ -28,6 +30,19 @@ public class PostUpdateResponseDto {
         this.author = author;
         this.publishedDate = publishedDate;
         this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public static PostUpdateResponseDto toDto(Post entity) {
+        return PostUpdateResponseDto.builder()
+                .id(entity.getId())
+                .title(entity.getTitle())
+                .body(entity.getBody())
+                .author(entity.getUser().getUsername())
+                .tag(entity.getPostTags().stream()
+                        .map(postTag -> postTag.getTag().getTagName())
+                        .collect(Collectors.toSet()))
+                .publishedDate(entity.getCreatedDate())
+                .build();
     }
 
 }

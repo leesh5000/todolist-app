@@ -32,9 +32,19 @@ public class User extends BaseTimeEntity {
     private List<Comment> comments = new ArrayList<>();
 
     @Builder
-    public User(Long id, String username, String password) {
-        this.id = id;
+    private User(String username, String password) {
         this.username = username;
         this.password = password;
     }
+
+    //== 생성 매서드 ==//
+    public static User createUser(String username, String password) {
+        return User.builder()
+                .username(username)
+                .password(password)
+                .build();
+    }
+
+    //== 연관관계 매서드 ==//
+
 }

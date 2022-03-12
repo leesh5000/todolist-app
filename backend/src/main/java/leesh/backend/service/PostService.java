@@ -2,21 +2,25 @@ package leesh.backend.service;
 
 import leesh.backend.dto.*;
 import leesh.backend.entity.Post;
+import leesh.backend.entity.PostTag;
+import leesh.backend.entity.Tag;
 import leesh.backend.entity.User;
 import leesh.backend.exception.CustomException;
 import leesh.backend.exception.ErrorCode;
 import leesh.backend.repository.PostRepository;
+import leesh.backend.repository.PostTagRepository;
+import leesh.backend.repository.TagRepository;
 import leesh.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,43 +34,66 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final TagRepository tagRepository;
+    private final PostTagRepository postTagRepository;
 
     @Transactional(readOnly = false)
     public PostWriteResponseDto write(PostWriteRequestDto requestDto) {
 
-        User loginUser = this.getLoginUser();
+        final String title = requestDto.getTitle();
+        final String body = requestDto.getBody();
 
-        Post newPost = postRepository.save(Post.write(requestDto.getTitle(), requestDto.getBody(), requestDto.getTags(), loginUser));
+        // 현재 로그인 유저 조회 (글 작성자)
+        final User loginUser = this.getLoginUser();
 
-        return PostWriteResponseDto.builder()
-                .id(newPost.getId())
-                .title(newPost.getTitle())
-                .body(newPost.getBody())
-                .author(newPost.getUser().getUsername())
-                .tag(newPost.getTag())
-                .publishedDate(newPost.getCreatedDate())
-                .build();
+        // Tag 생성
+        List<Tag> tags = requestDto.getTags().stream()
+                .map(inputTagName -> Tag.createTag(inputTagName))
+                .collect(Collectors.toList());
+        tagRepository.saveAll(tags);
+
+        // Post 생성
+        Post newPost = Post.createPost(title, body, loginUser);
+        postRepository.save(newPost);
+
+        // PostTag 생성
+        List<PostTag> postTags = tags.stream()
+                .map(tag -> PostTag.createPostTag(newPost, tag))
+                .collect(Collectors.toList());
+
+        return PostWriteResponseDto.toDto(newPost);
     }
 
     @Transactional(readOnly = false)
     public PostUpdateResponseDto edit(PostUpdateRequestDto requestDto, long id) {
 
-        Post post = postRepository.findById(id)
+        Post editPost = postRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_RESOURCE));
         User loginUser = this.getLoginUser();
-        checkOwnPost(post, loginUser);
+        checkOwnPost(editPost, loginUser);
 
-        post.edit(requestDto.getTitle(), requestDto.getBody(), requestDto.getTags());
+        // 기존에 존재하지 않는 태그들은 새로 만들기
+        List<Tag> newTags = requestDto.getTags().stream()
+                .filter(inputTagName -> !tagRepository.existsTagByTagName(inputTagName))
+                .map(notExistTagName -> Tag.createTag(notExistTagName))
+                .collect(Collectors.toList());
+        tagRepository.saveAll(newTags);
 
-        return PostUpdateResponseDto.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .body(post.getBody())
-                .author(post.getUser().getUsername())
-                .tag(post.getTag())
-                .publishedDate(post.getCreatedDate())
-                .lastModifiedDate(post.getModifiedDate())
-                .build();
+        // 수정할 태그들 조회
+        List<Tag> editTags = requestDto.getTags().stream()
+                .map(inputTagName -> tagRepository.findByTagName(inputTagName))
+                .collect(Collectors.toList());
+
+        // 기존에 존재하지 않는 PostTag 새로 생성
+        List<PostTag> newPostTag = editTags.stream()
+                .filter(editTag -> !postTagRepository.existsByPostAndTag(editPost, editTag))
+                .map(editTag -> PostTag.createPostTag(editPost, editTag))
+                .collect(Collectors.toList());
+
+        editPost.edit(requestDto.getTitle(), requestDto.getBody(), newPostTag);
+
+        // 기존에 없는 태그는 생성
+        return PostUpdateResponseDto.toDto(editPost);
     }
 
     private User getLoginUser() {
@@ -93,7 +120,7 @@ public class PostService {
     public List<PostGetResponseDto> list(String username, Set<String> tags, @NotNull Pageable pageable) {
 
         log.info("list query start");
-        List<Post> allByUser = postRepository.findByUsername(username, pageable);
+        List<Post> allByUser = postRepository.findByUsername(username);
         log.info("list query end");
 
         log.info("convert query start");

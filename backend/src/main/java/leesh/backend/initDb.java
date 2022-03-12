@@ -1,6 +1,7 @@
 package leesh.backend;
 
 import leesh.backend.entity.Post;
+import leesh.backend.entity.Tag;
 import leesh.backend.entity.User;
 import leesh.backend.repository.PostRepository;
 import leesh.backend.repository.UserRepository;
@@ -28,30 +29,12 @@ public class initDb {
             log.info("init db start...");
 
             List<User> users = new ArrayList<>();
+            List<Tag> tags = new ArrayList<>();
             List<Post> posts = new ArrayList<>();
 
-            for (int i=0; i<10; i++) {
-
-                User user = User.builder()
-                        .username("test" + i)
-                        .password(passwordEncoder.encode("1111"))
-                        .build();
-
+            for (int i=0; i<30; i++) {
+                User user = User.createUser("test" + i, passwordEncoder.encode("1111"));
                 users.add(user);
-
-                for (int j=0; j<50; j++) {
-                    Set<String> tag = new HashSet<>();
-                    tag.add(String.valueOf((int) (Math.random() * 100)));
-                    tag.add(String.valueOf((int) (Math.random() * 100)));
-                    tag.add(String.valueOf((int) (Math.random() * 100)));
-                    Post post = Post.write("title" + j, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut" +
-                            " labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris" +
-                            " nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit" +
-                            " esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in" +
-                            " culpa qui officia deserunt mollit anim id est laborum." + j, tag, user);
-
-                    posts.add(post);
-                }
             }
 
             userRepository.saveAll(users);
