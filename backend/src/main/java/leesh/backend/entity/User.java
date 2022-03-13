@@ -1,5 +1,6 @@
 package leesh.backend.entity;
 
+import leesh.backend.dto.UserDto;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,4 +48,11 @@ public class User extends BaseTimeEntity {
 
     //== 연관관계 매서드 ==//
 
+    //== toDto ==//
+    public UserDto toDto() {
+        return UserDto.builder()
+                .id(this.getId())
+                .username(this.getUsername())
+                .build();
+    }
 }

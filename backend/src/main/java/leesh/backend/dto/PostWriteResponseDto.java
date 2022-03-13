@@ -1,5 +1,6 @@
 package leesh.backend.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import leesh.backend.entity.Post;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,20 +14,21 @@ import java.util.stream.Collectors;
 @Getter
 public class PostWriteResponseDto {
 
+    @JsonProperty("_id")
     private Long id;
     private String title;
     private String body;
     private Set<String> tag;
-    private String author;
+    private UserDto user;
     private LocalDateTime publishedDate;
 
     @Builder
-    private PostWriteResponseDto(Long id, String title, String body, Set<String> tag, String author, LocalDateTime publishedDate) {
+    private PostWriteResponseDto(Long id, String title, String body, Set<String> tag, UserDto user, LocalDateTime publishedDate) {
         this.id = id;
         this.title = title;
         this.body = body;
         this.tag = tag;
-        this.author = author;
+        this.user  = user;
         this.publishedDate = publishedDate;
     }
 
@@ -35,7 +37,7 @@ public class PostWriteResponseDto {
                 .id(entity.getId())
                 .title(entity.getTitle())
                 .body(entity.getBody())
-                .author(entity.getUser().getUsername())
+                .user(entity.getUser().toDto())
                 .tag(entity.getPostTags().stream()
                         .map(postTag -> postTag.getTag().getTagName())
                         .collect(Collectors.toSet()))

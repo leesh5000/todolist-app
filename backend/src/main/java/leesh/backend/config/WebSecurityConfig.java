@@ -77,7 +77,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.png", "/**/*.gif", "/**/*.svg",
                         "/**/*.jpg", "/**/*.html", "/**/*.css", "/**/*.js", "/h2-console/**")
                 .permitAll()
-                .antMatchers("/api/users/register", "/api/users/login", "/api/users/logout").permitAll()
+                .antMatchers("/api/auth/register", "/api/auth/login", "/api/auth/logout").permitAll()
                 .anyRequest()
                 .authenticated();
 

@@ -43,7 +43,7 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService customUserDetailsService;
 
-    @PostMapping("/api/users/register")
+    @PostMapping("/api/auth/register")
     public ResponseEntity<UserRegisterResponse> register(@RequestBody @Validated UserRegisterRequest requestDto, HttpServletResponse response) {
 
         User savedUser = userService.register(requestDto);
@@ -68,7 +68,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
-    @PostMapping("/api/users/login")
+    @PostMapping("/api/auth/login")
     public ResponseEntity<UserLoginResponse> login(@RequestBody @Validated UserLoginRequest requestDto, HttpServletResponse response) {
 
         UserAuthentication userAuthentication = new UserAuthentication(requestDto.getUsername(), requestDto.getPassword());
@@ -101,7 +101,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
-    @PostMapping("/api/users/logout")
+    @PostMapping("/api/auth/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
 
         // set cookie
@@ -115,7 +115,7 @@ public class UserController {
     }
 
     // 유저가 로그인 되어있는지 확인하는 API
-    @GetMapping("/api/users/check")
+    @GetMapping("/api/auth/check")
     public ResponseEntity<UserCheckResponseDto> check() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = (String) authentication.getPrincipal();

@@ -10,8 +10,9 @@ const palette = {
     '#868e96',
     '#495057',
     '#343a40',
-    '#212529',
-  ], cyan: [
+    '#212529'
+  ],
+  cyan: [
     '#e3fafc',
     '#c5f6fa',
     '#99e9f2',
@@ -21,8 +22,8 @@ const palette = {
     '#15aabf',
     '#1098ad',
     '#0c8599',
-    '#0b7285',
-  ],
+    '#0b7285'
+  ]
 };
 
 export default palette;
