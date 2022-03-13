@@ -1,5 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
-import PostListPage from './pages/PostListPage';
+import Home from './pages/Home';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import NotFound from './pages/NotFound';
@@ -7,7 +7,7 @@ import NotFound from './pages/NotFound';
 const App = () => {
   return (
     <Routes>
-      <Route path="/" element={<PostListPage />} />
+      <Route path="/" element={<Home />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="*" element={<NotFound/>} />
