@@ -54,6 +54,7 @@ public class JwtUtil implements InitializingBean {
                 .setIssuedAt(Date.from(issuedAt))
                 .setExpiration(Date.from(expiredAt))
                 .setSubject(userDetails.getUsername())
+                .claim("id", userDetails.getId())
                 .claim(AUTHORITIES_KEY, authorities)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();

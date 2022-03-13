@@ -74,7 +74,7 @@ public class JwtFilter extends OncePerRequestFilter {
                                 .map(SimpleGrantedAuthority::new)
                                 .collect(Collectors.toList());
 
-                UserAuthentication userAuthentication = new UserAuthentication(claims.getSubject(), "", authorities);
+                UserAuthentication userAuthentication = new UserAuthentication(claims.getSubject(), claims.get("id"), authorities);
                 SecurityContextHolder.getContext().setAuthentication(userAuthentication);
                 log.info("SecurityContext saved '{}' uri: {}", userAuthentication.getName(), request.getRequestURI());
 

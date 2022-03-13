@@ -1,9 +1,6 @@
 package leesh.backend.controller;
 
-import leesh.backend.dto.UserLoginRequest;
-import leesh.backend.dto.UserLoginResponse;
-import leesh.backend.dto.UserRegisterRequest;
-import leesh.backend.dto.UserRegisterResponse;
+import leesh.backend.dto.*;
 import leesh.backend.entity.User;
 import leesh.backend.exception.CustomException;
 import leesh.backend.security.CustomUserDetails;
@@ -19,6 +16,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,9 +44,21 @@ public class UserController {
     private final CustomUserDetailsService customUserDetailsService;
 
     @PostMapping("/api/users/register")
-    public ResponseEntity<UserRegisterResponse> register(@RequestBody @Validated UserRegisterRequest requestDto) {
+    public ResponseEntity<UserRegisterResponse> register(@RequestBody @Validated UserRegisterRequest requestDto, HttpServletResponse response) {
 
         User savedUser = userService.register(requestDto);
+
+        UserAuthentication userAuthentication = new UserAuthentication(requestDto.getUsername(), requestDto.getPassword());
+        CustomUserDetails userDetails = (CustomUserDetails) authenticationManager.authenticate(userAuthentication).getPrincipal();
+
+        String accessToken = jwtUtil.createAccessToken(userDetails);
+
+        // set cookie
+        Cookie cookie = new Cookie(X_AUTH, accessToken);
+        cookie.setMaxAge(Math.toIntExact(ACCESS_TOKEN_EXPIRED_MSEC));
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
 
         UserRegisterResponse body = UserRegisterResponse.builder()
                 .id(savedUser.getId())
@@ -90,7 +101,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
-    @GetMapping("/api/users/logout")
+    @PostMapping("/api/users/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
 
         // set cookie
@@ -101,6 +112,21 @@ public class UserController {
         response.addCookie(cookie);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    // 유저가 로그인 되어있는지 확인하는 API
+    @GetMapping("/api/users/check")
+    public ResponseEntity<UserCheckResponseDto> check() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = (String) authentication.getPrincipal();
+        String id = String.valueOf(authentication.getCredentials());
+
+        UserCheckResponseDto body = UserCheckResponseDto.builder()
+                .id(id)
+                .username(username)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
 
